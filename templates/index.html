@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="products">
+    <h2>Our Products</h2>
+    <div class="product-filters">
+        <select id="category-filter">
+            <option value="">All Categories</option>
+            <option value="cards">Cards</option>
+            <option value="banners">Banners</option>
+            <option value="flyers">Flyers</option>
+        </select>
+    </div>
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card" data-category="{{ product.category }}">
+            <img src="{{ product.image }}" alt="{{ product.name }}">
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.description }}</p>
+            <p class="price">${{ "%.2f"|format(product.price) }}</p>
+            <button class="add-to-cart" data-id="{{ product.id }}">Add to Cart</button>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

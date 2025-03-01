@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="admin-chats">
+    <div class="admin-header">
+        <h2>Chat History</h2>
+        <a href="{{ url_for('admin') }}" class="back-btn">Back to Dashboard</a>
+    </div>
+
+    <div class="chat-list">
+        {% for chat in chats %}
+        <div class="chat-item">
+            <div class="chat-header">
+                <div class="chat-info">
+                    <span class="timestamp">{{ chat.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    <span class="user">{{ chat.user.username if chat.user else 'Anonymous' }}</span>
+                </div>
+                <div class="chat-status">
+                    <span class="status-badge {{ 'resolved' if chat.is_resolved else 'pending' }}">
+                        {{ 'Resolved' if chat.is_resolved else 'Pending' }}
+                    </span>
+                </div>
+            </div>
+            <div class="chat-content">
+                <div class="user-message">
+                    <strong>User:</strong> {{ chat.message }}
+                </div>
+                <div class="ai-response">
+                    <strong>AI:</strong> {{ chat.response }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<style>
+.admin-chats {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.chat-list {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.chat-item {
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px var(--border-color);
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.chat-info {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.timestamp {
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+.user {
+    font-weight: 600;
+}
+
+.chat-content {
+    display: grid;
+    gap: 1rem;
+}
+
+.user-message, .ai-response {
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: rgba(219, 227, 68, 0.1);
+}
+
+.ai-response {
+    background-color: rgba(219, 227, 68, 0.05);
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.status-badge.resolved {
+    background-color: #32cd32;
+    color: white;
+}
+
+.status-badge.pending {
+    background-color: #ffd700;
+    color: black;
+}
+
+.back-btn {
+    padding: 0.8rem 1.5rem;
+    background-color: transparent;
+    color: var(--accent-color);
+    border: 2px solid var(--accent-color);
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background-color: var(--accent-color);
+    color: black;
+}
+</style>
+{% endblock %}

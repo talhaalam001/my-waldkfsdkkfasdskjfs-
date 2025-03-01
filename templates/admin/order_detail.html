@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="order-detail">
+    <div class="admin-header">
+        <h2>Order #{{ order.id }}</h2>
+        <a href="{{ url_for('admin_orders') }}" class="back-btn">Back to Orders</a>
+    </div>
+
+    <div class="order-info">
+        <div class="info-section">
+            <h3>Order Status</h3>
+            <form method="POST" action="{{ url_for('admin_update_order_status', order_id=order.id) }}" 
+                  class="status-form">
+                <select name="status" onchange="this.form.submit()">
+                    <option value="pending" {{ 'selected' if order.status == 'pending' }}>Pending</option>
+                    <option value="processing" {{ 'selected' if order.status == 'processing' }}>Processing</option>
+                    <option value="completed" {{ 'selected' if order.status == 'completed' }}>Completed</option>
+                    <option value="cancelled" {{ 'selected' if order.status == 'cancelled' }}>Cancelled</option>
+                </select>
+            </form>
+        </div>
+
+        <div class="info-section">
+            <h3>Customer Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">Name:</span>
+                    <span>{{ order.name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Email:</span>
+                    <span>{{ order.email }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Phone:</span>
+                    <span>{{ order.phone }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Shipping Address</h3>
+            <div class="address">
+                <p>{{ order.address }}</p>
+                <p>{{ order.city }}, {{ order.state }}</p>
+                <p>PIN: {{ order.pincode }}</p>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Order Details</h3>
+            <div class="order-items">
+                {% for item in order.items %}
+                <div class="order-item">
+                    <div class="item-info">
+                        <h4>{{ item.product.name }}</h4>
+                        <p class="quantity">Quantity: {{ item.quantity }}</p>
+                    </div>
+                    <div class="item-price">
+                        ${{ "%.2f"|format(item.price) }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="order-total">
+                <span>Total Amount:</span>
+                <span>${{ "%.2f"|format(order.total_amount) }}</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.order-detail {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.back-btn {
+    padding: 0.8rem 1.5rem;
+    background-color: transparent;
+    color: var(--accent-color);
+    border: 2px solid var(--accent-color);
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background-color: var(--accent-color);
+    color: black;
+}
+
+.order-info {
+    background-color: var(--background-color);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(219, 227, 68, 0.1);
+}
+
+.info-section {
+    padding: 2rem;
+    border-bottom: 1px solid rgba(219, 227, 68, 0.1);
+}
+
+.info-section:last-child {
+    border-bottom: none;
+}
+
+.info-section h3 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+}
+
+.status-form select {
+    padding: 0.8rem 1.5rem;
+    border: 2px solid var(--accent-color);
+    border-radius: 30px;
+    background: transparent;
+    color: var(--text-color);
+    font-size: 1rem;
+    cursor: pointer;
+    outline: none;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    color: var(--secondary-color);
+    font-weight: 500;
+}
+
+.address p {
+    margin: 0.5rem 0;
+}
+
+.order-items {
+    display: grid;
+    gap: 1rem;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: rgba(219, 227, 68, 0.05);
+    border-radius: 8px;
+}
+
+.item-info h4 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.quantity {
+    color: var(--secondary-color);
+    margin: 0.5rem 0 0;
+}
+
+.order-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(219, 227, 68, 0.1);
+}
+
+@media (max-width: 768px) {
+    .info-section {
+        padding: 1.5rem;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="ai-assistant">
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>AI Assistant</h2>
+            <p>How can I help you today?</p>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                Hello! I'm your Pixeldrops Printing assistant. I can help you with:
+                - Product information and pricing
+                - Order status and shipping
+                - Custom printing requirements
+                - General inquiries
+                What would you like to know?
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userMessage" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</section>
+
+<style>
+.ai-assistant {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.chat-container {
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    box-shadow: 0 5px 15px var(--border-color);
+    overflow: hidden;
+}
+
+.chat-header {
+    background-color: var(--accent-color);
+    color: black;
+    padding: 2rem;
+    text-align: center;
+}
+
+.chat-header h2 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.chat-header p {
+    margin: 0.5rem 0 0;
+    opacity: 0.8;
+}
+
+.chat-messages {
+    height: 400px;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.message {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    max-width: 80%;
+}
+
+.message.user {
+    background-color: var(--accent-color);
+    color: black;
+    margin-left: auto;
+}
+
+.message.bot {
+    background-color: rgba(219, 227, 68, 0.1);
+    color: var(--text-color);
+}
+
+.chat-input {
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 1rem;
+    border: 2px solid var(--accent-color);
+    border-radius: 30px;
+    background: transparent;
+    color: var(--text-color);
+}
+
+.chat-input button {
+    padding: 1rem 2rem;
+    background-color: var(--accent-color);
+    color: black;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.chat-input button:hover {
+    opacity: 0.8;
+}
+</style>
+
+<script>
+async function sendMessage() {
+    const userInput = document.getElementById('userMessage');
+    const message = userInput.value.trim();
+    if (!message) return;
+
+    const chatMessages = document.getElementById('chatMessages');
+
+    // Add user message
+    chatMessages.innerHTML += `
+        <div class="message user">${message}</div>
+    `;
+
+    try {
+        // Get AI response
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
+
+        // Add bot response
+        chatMessages.innerHTML += `
+            <div class="message bot">${data.response}</div>
+        `;
+    } catch (error) {
+        chatMessages.innerHTML += `
+            <div class="message bot">I apologize, but I'm having trouble connecting. Please try again later.</div>
+        `;
+    }
+
+    userInput.value = '';
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Allow sending message with Enter key
+document.getElementById('userMessage').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+</script>
+{% endblock %}

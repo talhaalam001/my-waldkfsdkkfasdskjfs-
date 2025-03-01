@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="admin-dashboard">
+    <div class="admin-header">
+        <h2>Admin Dashboard</h2>
+        <div class="admin-actions">
+            <a href="{{ url_for('admin_orders') }}" class="admin-btn">View Orders</a>
+            <a href="{{ url_for('admin_chats') }}" class="admin-btn">View Chats</a>
+            <a href="{{ url_for('admin_add_product') }}" class="admin-btn">Add New Product</a>
+        </div>
+    </div>
+
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>Total Orders</h3>
+            <p class="stat-value">{{ orders|length }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Pending Orders</h3>
+            <p class="stat-value">{{ orders|selectattr('status', 'equalto', 'pending')|list|length }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Products</h3>
+            <p class="stat-value">{{ products|length }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Revenue</h3>
+            <p class="stat-value">${{ "%.2f"|format(orders|sum(attribute='total_amount')) }}</p>
+        </div>
+    </div>
+
+    <div class="recent-orders">
+        <h3>Recent Orders</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders[:5] %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.name }}</td>
+                        <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                        <td>
+                            <span class="status-badge {{ order.status }}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin_order_detail', order_id=order.id) }}" 
+                               class="view-btn">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="product-management">
+        <h3>Product Management</h3>
+        <div class="search-filter">
+            <input type="text" id="productSearch" placeholder="Search products..." class="search-input">
+            <select id="categoryFilter" class="filter-select">
+                <option value="">All Categories</option>
+                <option value="cards">Cards</option>
+                <option value="banners">Banners</option>
+                <option value="flyers">Flyers</option>
+            </select>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td><img src="{{ product.image }}" alt="{{ product.name }}" class="product-thumbnail"></td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.category }}</td>
+                        <td>${{ "%.2f"|format(product.price) }}</td>
+                        <td class="actions">
+                            <a href="{{ url_for('admin_edit_product', product_id=product.id) }}" class="edit-btn">Edit</a>
+                            <a href="{{ url_for('admin_delete_product', product_id=product.id) }}" 
+                               class="delete-btn"
+                               onclick="return confirm('Are you sure you want to delete this product?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+<style>
+.admin-dashboard {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: var(--background-color);
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(219, 227, 68, 0.1);
+    text-align: center;
+}
+
+.stat-card h3 {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    color: var(--accent-color);
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.recent-orders, .product-management {
+    background-color: var(--background-color);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(219, 227, 68, 0.1);
+}
+
+.search-filter {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-input, .filter-select {
+    padding: 0.8rem;
+    border: 2px solid var(--accent-color);
+    border-radius: 30px;
+    background: transparent;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.search-input {
+    flex: 1;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(219, 227, 68, 0.1);
+}
+
+th {
+    background-color: var(--accent-color);
+    color: black;
+    font-weight: 600;
+}
+
+.product-thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.status-badge.pending {
+    background-color: #ffd700;
+    color: black;
+}
+
+.status-badge.processing {
+    background-color: #1e90ff;
+    color: white;
+}
+
+.status-badge.completed {
+    background-color: #32cd32;
+    color: white;
+}
+
+.status-badge.cancelled {
+    background-color: #ff4444;
+    color: white;
+}
+
+.admin-btn {
+    padding: 0.8rem 1.5rem;
+    background-color: var(--accent-color);
+    color: black;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.admin-btn:hover {
+    opacity: 0.8;
+}
+
+.edit-btn, .delete-btn, .view-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-right: 0.5rem;
+}
+
+.edit-btn {
+    background-color: var(--accent-color);
+    color: black;
+}
+
+.delete-btn {
+    background-color: #ff4444;
+    color: white;
+}
+
+.view-btn {
+    background-color: var(--accent-color);
+    color: black;
+}
+
+@media (max-width: 768px) {
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .search-filter {
+        flex-direction: column;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    table {
+        min-width: 800px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const productSearch = document.getElementById('productSearch');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const productRows = document.querySelectorAll('tbody tr');
+
+    function filterProducts() {
+        const searchTerm = productSearch.value.toLowerCase();
+        const category = categoryFilter.value.toLowerCase();
+
+        productRows.forEach(row => {
+            const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const productCategory = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+
+            const matchesSearch = name.includes(searchTerm);
+            const matchesCategory = !category || productCategory === category;
+
+            row.style.display = matchesSearch && matchesCategory ? '' : 'none';
+        });
+    }
+
+    productSearch.addEventListener('input', filterProducts);
+    categoryFilter.addEventListener('change', filterProducts);
+});
+</script>
